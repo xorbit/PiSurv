@@ -49,20 +49,20 @@ I had developed my simple little web viewer with [Flask].  I had figured out how
 
 ### Daemons and init scripts
 
-Ah, this is so much fun every time I try to do it (NOT!).  I tried to use Python's [daemon] module.  It wouldn't work with the recording script.  It didn't report anything was wrong.  It would just not do anything, no idea why.  I tried the [daemon] program.  Same thing!  It didn't give any messages of any knd, it just didn't work.  Eventually I found this [article about getting a Python script to run in the background], which uses the [start-stop-daemon] program.  Using that as a template finally got it working!
+Ah, this is so much fun every time I try to do it (NOT!).  I tried to use Python's [python-daemon] module.  It wouldn't work with the recording script.  It didn't report anything was wrong.  It would just not do anything, no idea why.  I tried the [daemon] program.  Same thing!  It didn't give any messages of any knd, it just didn't work.  Eventually I found this [article about getting a Python script to run in the background], which uses the [start-stop-daemon] program.  Using that as a template finally got it working!
 
 ## Dependencies
 
 This package requires the [PIL], [numpy], [picamera] and [Flask] Python modules.  On [Raspbian], you should be able to install these with:
 
 ```bash
-# sudo apt-get install python-imaging python-numpy python-picamera python-flask
+sudo apt-get install python-imaging python-numpy python-picamera python-flask
 ```
 
 It also requires Nginx, or another web server.  Nginx can be installed on Raspbian using:
 
 ```bash
-# sudo apt-get install nginx
+sudo apt-get install nginx
 ```
 
 The installer automatically sets up Nginx correctly for use with this package.  If you want to use another web server, you have to configure it to serve requests for files under the `/rec` path from `/var/lib/pisurv`, and pass all other requests on to `localhost:5005` so they can be served by the [Flask] script.
@@ -74,7 +74,7 @@ Another external dependency is [FFmpeg].  As explained above, the one included i
 You should be able to install the package with:
 
 ```bash
-# sudo ./INSTALL.sh
+sudo ./INSTALL.sh
 ```
 
 This will install everything, configure the init system to start the program on boot, and start it immediately.
@@ -86,20 +86,20 @@ At the moment, some important configuration parameters are hardcoded in the Pyth
 The daemon can be started and stopped with:
 
 ```bash
-# sudo service pisurv start
-# sudo service pisurv stop
+sudo service pisurv start
+sudo service pisurv stop
 ```
 
 To stop the daemon from loading at boot time, use:
 
 ```bash
-# sudo update-rc.d pisurv remove
+sudo update-rc.d pisurv remove
 ```
 
 If you want to have it start on boot again, use:
 
 ```bash
-# sudo update-rc.d pisurv defaults
+sudo update-rc.d pisurv defaults
 ```
 
 ## Known issues / planned features

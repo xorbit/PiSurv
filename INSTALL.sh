@@ -19,6 +19,11 @@ install -p templates/* $INSTALL_DIRECTORY/templates
 # Copy the config directory
 install -p config/* $INSTALL_DIRECTORY/config
 
+# Install fixed FFmpeg if not present
+if [ ! -f /usr/local/bin/ffmpeg ]; then
+    install -p deps/ffmpeg /usr/local/bin
+fi
+
 # Set the install directory in the init script
 sed -i "s:INSTALL_DIRECTORY:$INSTALL_DIRECTORY:" $INSTALL_DIRECTORY/config/init
 # Create a symbolic link to the init script
