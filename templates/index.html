@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>PiSurv recordings</title>
+    <script type="text/javascript">
+      function toggleFileCheckboxes() {
+        var checkboxes = document.getElementsByName('files');
+        for (var i=0; i<checkboxes.length; i++) {
+          checkboxes[i].checked = !checkboxes[i].checked;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>PiSurv recordings</h1>
+    <div>
+      <form method="POST">
+        <div>
+          <h2>Actions on selected recordings:</h2>
+          <input type="button" onClick="toggleFileCheckboxes()" value="Toggle selection">
+          <input type="submit" formaction="delete" value="Delete selected">
+          <input type="submit" formaction="download" value="Download ZIP of selected">
+        </div>
+        {% for rec in recordings %}
+        <div class="recording">
+          <h2>
+            <input type="checkbox" name="files" value="{{ rec }}">
+            {{ rec }}
+          </h2>
+          <video width="960" height="540" controls>
+            <source src="/rec/{{ rec }}" type="video/mp4">
+            <p>Your browser does not support H.264/MP4 video.</p>
+          </video>
+          <p>
+            <a href="/rec/{{ rec }}">Download</a>
+          </p>
+        </div>
+        {% endfor %}
+      </form>
+    </div>
+  </body>
+</html>
