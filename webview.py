@@ -9,9 +9,11 @@ import os.path
 import zipfile
 
 # Recording filesystem path
-RECPATH = '/var/lib/pisurv'
+REC_PATH = '/var/lib/pisurv'
 # Recording ZIP name
-RECZIP = 'PiSurv.zip'
+REC_ZIP = 'PiSurv.zip'
+# Recordings per page
+REC_PER_PAGE = 5
 
 # Flask app object for this module
 app = Flask(__name__)
@@ -19,7 +21,7 @@ app = Flask(__name__)
 @app.route('/')
 def recording_list():
     """Handler for recording list (root)"""
-    recordings = sorted([rec for rec in os.listdir(RECPATH)
+    recordings = sorted([rec for rec in os.listdir(REC_PATH)
                           if rec.endswith('.mp4')])
     return render_template('index.html', recordings=recordings)
 
@@ -27,16 +29,16 @@ def recording_list():
 def delete_files():
     """Handler for deleting selected recordings"""
     for rec in request.form.getlist('files'):
-      os.remove(os.path.join(RECPATH, rec))
+      os.remove(os.path.join(REC_PATH, rec))
     return redirect(url_for('recording_list'))
 
 @app.route('/download', methods=['POST'])
 def download_files():
     """Handler for creating and downloading a ZIP of selected recordings"""
-    with zipfile.ZipFile(os.path.join(RECPATH, RECZIP), 'w') as rec_zip:
+    with zipfile.ZipFile(os.path.join(REC_PATH, REC_ZIP), 'w') as rec_zip:
       for rec in request.form.getlist('files'):
-        rec_zip.write(os.path.join(RECPATH, rec), rec)
-    return redirect('/rec/' + RECZIP)
+        rec_zip.write(os.path.join(REC_PATH, rec), rec)
+    return redirect('/rec/' + REC_ZIP)
 
 def start_server():
     """Start the server"""
