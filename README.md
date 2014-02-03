@@ -27,6 +27,10 @@ The reason I created this is that most surveillance projects I've seen for the R
 
 I encountered plenty on the way.  Since the purpose of the Pi is to be educational, I'll explain some of the problems I ran into and how I dealt with them.  If you're not interested and just want to get on with it, you can skip this section.
 
+### Low light noise
+
+Initially I had lots of false triggers due to noise in the image when dealing with low-light situations.  I solved this by switching the camera module to 'night' mode during detection.  The disadvantage is that motion detection is significantly slower, due to the long exposure times in night mode.  Another artifact of this is that at the start of the recording, you notice the module switching back to 'auto' mode, which usually results in a light start with sudden darkening.  I would have thought that in auto mode, the camera module would automatically switch to night mode in low light conditions, but this does not seem to be the case, making this hack necessary.
+
 ### The video stream
 
 I liked the idea of using an H.264 stream from the camera module because this is one of the codecs supported by HTML5 and as such can play natively in most modern browsers.  I had expected no issues there, but there were plenty.  Turns out the stream coming from the camera is a raw H.264 stream, it has no container.  If I recall correctly, only [VLC] knew how to do anything with the generated files.  Not one browser was capable of dealing with it.  So I needed a way to package this raw stream in an MP4 container.  I immediately thought of [FFmpeg], the swiss army tool for codecs.
