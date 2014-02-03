@@ -1,3 +1,8 @@
+{#
+  PiSurv index page Jinja2 template
+  Copyright (c) 2014 Patrick Van Oosterwijck
+  Distributed under the GPL v2 license
+#}
 <!doctype html>
 <html>
   <head>
@@ -10,33 +15,113 @@
         }
       }
     </script>
+    <style>
+      body {
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-weight: 50;
+        text-color: #404040;
+      }
+      h1 {
+        background-color: #ddeeee;
+        padding: 10px 25px;
+        margin: 10px;
+        text-align: center;
+      }
+      div {
+        padding: 5px 15px;
+        margin: 10px;
+      }
+      div.footer {
+        background-color: #ddeeee;
+        padding: 10px 25px;
+        margin: 10px;
+        text-color: #808080;
+        text-align: center;
+      }
+      div.wrapper {
+        width: 1060px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      div.pagination {
+        background-color: #eeffee;
+      }
+      div.pagination a, strong {
+        background-color: #bbeebb;
+        margin: 5px;
+        padding: 5px;
+      }
+      div.actions {
+        background-color: #bbeebb;
+      }
+      div.recording {
+        background-color: #ddeeff;
+      }
+    </style>
   </head>
   <body>
-    <h1>PiSurv recordings</h1>
-    <div>
-      <form method="POST">
-        <div>
-          <h2>Actions on selected recordings:</h2>
-          <input type="button" onClick="toggleFileCheckboxes()" value="Toggle selection">
-          <input type="submit" formaction="delete" value="Delete selected">
-          <input type="submit" formaction="download" value="Download ZIP of selected">
-        </div>
-        {% for rec in recordings %}
-        <div class="recording">
-          <h2>
-            <input type="checkbox" name="files" value="{{ rec }}">
-            {{ rec }}
-          </h2>
-          <video width="960" height="540" controls>
-            <source src="/rec/{{ rec }}" type="video/mp4">
-            <p>Your browser does not support H.264/MP4 video.</p>
-          </video>
-          <p>
-            <a href="/rec/{{ rec }}">Download</a>
-          </p>
-        </div>
-        {% endfor %}
-      </form>
+{% macro render_pagination(pagination) %}
+  <div class="pagination">
+  {% if pagination.has_prev %}
+    <a href="{{ url_for_other_page(pagination.page - 1)
+      }}">&laquo; Previous</a>
+  {% endif %}
+  {%- for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a href="{{ url_for_other_page(page) }}">{{ page }}</a>
+      {% else %}
+        <strong>{{ page }}</strong>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>…</span>
+    {% endif %}
+  {%- endfor %}
+  {% if pagination.has_next %}
+    <a href="{{ url_for_other_page(pagination.page + 1)
+      }}">Next &raquo;</a>
+  {% endif %}
+  </div>
+{% endmacro %}
+{% macro render_actions() %}
+  <div class="actions">
+    <p>Actions on selected recordings:</p>
+    <input type="button" onClick="toggleFileCheckboxes()" value="Toggle selection">
+    <input type="submit" formaction="delete" value="Delete selected">
+    <input type="submit" formaction="download" value="Download ZIP of selected">
+    </br></br>
+  </div>
+{% endmacro %}
+    <div class="wrapper">
+      <h1>PiSurv recordings</h1>
+      <div class="content">
+        <form method="POST">
+          {{ render_actions() }}
+          {{ render_pagination(pagination) }}
+          {% for rec in recordings %}
+            {% if pagination.in_page(loop.index0) %}
+            <div class="recording">
+              <h3>
+                <input type="checkbox" name="files" value="{{ rec }}">
+                {{ rec }}
+              </h3>
+              <video width="960" height="540" controls>
+                <source src="/rec/{{ rec }}" type="video/mp4">
+                <p>Your browser does not support H.264/MP4 video.</p>
+              </video>
+              <p>
+                <a href="/rec/{{ rec }}">Download</a>
+              </p>
+            </div>
+            {% endif %}
+          {% endfor %}
+          {{ render_pagination(pagination) }}
+          {{ render_actions() }}
+        </form>
+      </div>
+      <div class="footer">
+        PiSurv Copyright &copy; 2014 Patrick Van Oosterwijck
+      </div>
     </div>
   </body>
 </html>
