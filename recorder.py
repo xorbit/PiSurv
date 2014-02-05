@@ -12,7 +12,7 @@ from subprocess import Popen, PIPE
 
 
 # Motion threshold (higher number: more motion needed to start recording
-MOTION_THRESHOLD = 0.6
+MOTION_THRESHOLD = 0.7
 # Path of the recordings
 REC_PATH = '/var/lib/pisurv'
 # Frame rate
@@ -52,9 +52,12 @@ def start_surveillance():
                 print "Recording for %d seconds to %s" % (REC_LEN, fname)
                 camera.start_recording(ffmpeg.stdin, bitrate=8000000,
                                         format='h264', profile='main')
+                # Record for the specified amount of time
                 camera.wait_recording(REC_LEN)
+                # End the recording and clean up
                 camera.stop_recording()
                 ffmpeg.stdin.close()
+                ffmpeg.communicate()
                 # Go back to scanning for motion
                 print "Scanning for motion..."
                 det.reset()
