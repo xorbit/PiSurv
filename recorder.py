@@ -9,23 +9,15 @@ import motion
 import os
 import os.path
 from subprocess import Popen, PIPE
+import cfg
 
-
-# Motion threshold (higher number: more motion needed to start recording
-MOTION_THRESHOLD = 0.7
-# Path of the recordings
-REC_PATH = '/var/lib/pisurv'
-# Frame rate
-FRAMERATE = 15
-# Recording length
-REC_LEN = 100
 
 def start_surveillance():
     """Start the surveillance"""
 
     print "Opening camera..."
     camera = picamera.PiCamera()
-    camera.framerate = FRAMERATE
+    camera.framerate = cfg.FRAME_RATE
 
     try:
         det = motion.MotionDetector(camera)
@@ -38,22 +30,22 @@ def start_surveillance():
             camera.resolution = (320, 240)
             camera.exposure_mode = 'night'
             # Check for motion
-            if det.motion(MOTION_THRESHOLD):
+            if det.motion(cfg.MOTION_THRESHOLD):
                 # Record in high resolution, auto exposure
                 camera.resolution = (1920, 1080)
                 camera.exposure_mode = 'auto'
                 # Use a timestamp as file name
-                fname = os.path.join(REC_PATH, datetime.now(). \
+                fname = os.path.join(cfg.REC_PATH, datetime.now(). \
                                       strftime('rec-%Y-%m-%d-%H.%M.%S.mp4'))
                 # Start the recording
-                ffmpeg = Popen(['ffmpeg', '-r', str(FRAMERATE), '-i',
+                ffmpeg = Popen(['ffmpeg', '-r', str(cfg.FRAME_RATE), '-i',
                                 'pipe:', '-vcodec', 'copy', fname],
                                 stdin=PIPE)
-                print "Recording for %d seconds to %s" % (REC_LEN, fname)
+                print "Recording for %d seconds to %s" % (cfg.REC_LEN, fname)
                 camera.start_recording(ffmpeg.stdin, bitrate=8000000,
                                         format='h264', profile='main')
                 # Record for the specified amount of time
-                camera.wait_recording(REC_LEN)
+                camera.wait_recording(cfg.REC_LEN)
                 # End the recording and clean up
                 camera.stop_recording()
                 ffmpeg.stdin.close()

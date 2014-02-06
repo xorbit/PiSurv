@@ -114,6 +114,10 @@
               </p>
             </div>
             {% endif %}
+          {% else %}
+            <div class="recording">
+              <h3>No recordings.</h3>
+            </div>
           {% endfor %}
           {{ render_pagination(pagination) }}
           {{ render_actions() }}

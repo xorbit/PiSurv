@@ -24,6 +24,11 @@ if [ ! -f /usr/local/bin/ffmpeg ]; then
     install -p deps/ffmpeg /usr/local/bin
 fi
 
+# Install config file if it doesn't exist
+if [ ! -f /etc/pisurv.conf ]; then
+    install -p config/pisurv.conf /etc
+fi
+
 # Set the install directory in the init script
 sed -i "s:INSTALL_DIRECTORY:$INSTALL_DIRECTORY:" $INSTALL_DIRECTORY/config/init
 # Create a symbolic link to the init script

@@ -8,14 +8,8 @@ import os
 import os.path
 import zipfile
 from math import ceil
+import cfg
 
-
-# Recording filesystem path
-REC_PATH = '/var/lib/pisurv'
-# Recording ZIP name
-REC_ZIP = 'PiSurv.zip'
-# Recordings per page
-REC_PER_PAGE = 5
 
 # Flask app object for this module
 app = Flask(__name__)
@@ -74,11 +68,11 @@ app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 @app.route('/<int:page>')
 def recording_list(page):
     """Handler for recording list (root)"""
-    recordings = sorted([rec for rec in os.listdir(REC_PATH)
+    recordings = sorted([rec for rec in os.listdir(cfg.REC_PATH)
                           if rec.endswith('.mp4')])
     if not recordings and page != 1:
         abort(404)
-    pagination = Pagination(page, REC_PER_PAGE, len(recordings))
+    pagination = Pagination(page, cfg.REC_PER_PAGE, len(recordings))
     return render_template('index.html', recordings=recordings,
                           pagination=pagination)
 
@@ -86,16 +80,17 @@ def recording_list(page):
 def delete_files():
     """Handler for deleting selected recordings"""
     for rec in request.form.getlist('files'):
-      os.remove(os.path.join(REC_PATH, rec))
+        os.remove(os.path.join(cfg.REC_PATH, rec))
     return redirect(url_for('recording_list'))
 
 @app.route('/download', methods=['POST'])
 def download_files():
     """Handler for creating and downloading a ZIP of selected recordings"""
-    with zipfile.ZipFile(os.path.join(REC_PATH, REC_ZIP), 'w') as rec_zip:
-      for rec in request.form.getlist('files'):
-        rec_zip.write(os.path.join(REC_PATH, rec), rec)
-    return redirect('/rec/' + REC_ZIP)
+    with zipfile.ZipFile(os.path.join(cfg.REC_PATH, cfg.REC_ZIP),
+                          'w') as rec_zip:
+        for rec in request.form.getlist('files'):
+            rec_zip.write(os.path.join(cfg.REC_PATH, rec), rec)
+    return redirect('/rec/' + cfg.REC_ZIP)
 
 def start_server():
     """Start the server"""
