@@ -1,4 +1,4 @@
-# PiSurv: Surveillance for the Raspberry Pi
+# PiSurv: Video surveillance for the Raspberry Pi
 
 [Raspberry Pi]:http://raspberrypi.org
 [camera module]:http://www.raspberrypi.org/archives/tag/camera-module
@@ -16,16 +16,17 @@
 [start-stop-daemon]:http://man.he.net/man8/start-stop-daemon
 [PIL]:http://www.pythonware.com/products/pil/
 [numpy]:http://www.numpy.org/
+[dateutil]:http://labix.org/python-dateutil
 
 ## What is it?
 
-This is a little surveillance package for the [Raspberry Pi].  It is specifically made for use with the Pi's [camera module], and uses the excellent [picamera] Python module.  It continually monitors the camera view, and if motion is detected, it records a video.  There is also a web viewer included, which allows you to view the recordings in a web browser, download them or delete them.
+This is a little video surveillance package for the [Raspberry Pi].  It is specifically made for use with the Pi's [camera module], and uses the excellent [picamera] Python module.  It monitors the camera view, and if motion is detected, it records a video.  A web viewer is included, which allows you to view the recordings in a web browser, download them or delete them.  There is a powerful scheduling feature that allows you to specify time spans when the surveillance should be active.
 
-The reason I created this is that most surveillance projects I've seen for the Raspberry Pi use the standard (and quite nice) [Motion] package.  This works great on regular computers, unfortunately on the Pi it doesn't succeed in recording video at more than 2 frames per second or so, because it uses the CPU to encode the video stream.  The stream coming from the Pi's [camera module] is already encoded by the GPU, resulting in acceptable video quality and frame rates even at high resolutions.  The [picamera] Python module provides easy access to this powerful capability.
+The reason I created this is that most surveillance projects I've seen for the Raspberry Pi use the standard (and quite nice) [Motion] package.  This works great on regular computers, unfortunately on the Pi it doesn't succeed in recording video at more than 2 frames per second or so, because it uses the CPU to encode the video stream.  The stream coming from the Pi's [camera module] is already encoded by the GPU, resulting in acceptable video quality and frame rates even at high resolutions.  The [picamera] Python module provides easy access to this powerful capability.  This project wraps all this nice technical power into and easy to use package for end users.
 
 ## Challenges
 
-I encountered plenty on the way.  Since the purpose of the Pi is to be educational, I'll explain some of the problems I ran into and how I dealt with them.  If you're not interested and just want to get on with it, you can skip this section.
+I encountered plenty of challenges on the way.  Since the purpose of the Pi is to be educational, I'll explain some of the problems I ran into and how I dealt with them.  If you're not interested and just want to get on with running the software, you can skip this section.
 
 ### Low light noise
 
@@ -57,10 +58,10 @@ Ah, this is so much fun every time I try to do it (NOT!).  I tried to use Python
 
 ## Dependencies
 
-This package requires the [PIL], [numpy], [picamera] and [Flask] Python modules.  On [Raspbian], you should be able to install these with:
+This package requires the [PIL], [numpy], [picamera], [dateutil] and [Flask] Python modules.  On [Raspbian], you should be able to install these with:
 
 ```bash
-sudo apt-get install python-imaging python-numpy python-picamera python-flask
+sudo apt-get install python-imaging python-numpy python-picamera python-dateutil python-flask
 ```
 
 It also requires Nginx, or another web server.  Nginx can be installed on Raspbian using:
@@ -85,7 +86,21 @@ This will install everything, configure the init system to start the program on 
 
 ## Configuration
 
-At the moment, some important configuration parameters are hardcoded in the Python source files, such as the recording path, recording length and framerate.  The plan is to move these into a proper configuration file in the future, but as of now, you can edit these parameters before you run the installer.
+The package configuration can be customized using the configuration file `/etc/pisurv.conf`.  If this file does not exist on installation, the install script will create one containing default values.  The configuration file contains settings such as the motion threshold, recording path, recording length and framerate, and options for the web viewer.  The default configuration file contains comments that can help you to set this up.
+
+By default, the camera is monitored for motion continuously.  To use the scheduling feature, you can add a `[Schedule]` section to the configuration file, and add keys with values that specify time spans to this section.  The key names do not matteri and can be chosen to clarify the users intent.  The time spans are two time specifications that the `python-dateutil` package can parse and separated by a dash: `-`.
+
+For example, a configuration that records every day from noon till 1 PM, and on Tuesdays from 7:15 PM till 10 PM could look like this:
+
+```
+[Schedule]
+NOON = 12pm - 1pm
+MEETING_TUE = tuesday 7:15 pm - tuesday 10:00 pm
+```
+
+When specifying time spans that are not just times but also specify a day/date, you have to make sure to specify a date portion for both start and stop times, since they are parsed separately.  A date specification on only one side of the time span will produce unpredictable results.
+
+## Running the program
 
 The daemon can be started and stopped with:
 
@@ -109,11 +124,9 @@ sudo update-rc.d pisurv defaults
 ## Known issues / planned features
 
 * Needing a custom FFmpeg sucks.  Would be great if [Raspbian] would include the official one from the [FFmpeg] developers, or if the [Libav] developers fixed their problem.
-* Break out configuration parameters into a proper `/etc/pisurv.conf` file.
 * Right now, there is no limit on the number of recordings.  You have to clear them manually.  It would be nice if a maximum size, number of recordings or age could be specified and old recordings would be removed automatically.
 * Motion detection could use some improvement.  It isn't as good as [Motion]'s.
-* The web viewer needs some serious styling.
+* The web viewer could use some style improvements.
 * New recordings show in the web viewer as broken videos, until they are complete.  It would be nicer if they only showed up after they were done recording.
-* Would be nice to be able to specify time and/or date ranges for when to record and when not.
 * A .deb package would be great.
 
