@@ -40,13 +40,13 @@ I liked the idea of using an H.264 stream from the camera module because this is
 
 My first surprise when I ran FFmpeg was to see a message saying that FFmpeg was deprecated and to use [Libav] instead.  I almost fell over.  Upon investigation I found out that Libav is a fork or FFmpeg, favored by [Debian] (and by extension [Raspbian]).  Well OK, I don't care what it's called.  So figured out the Libav options to package my H.264 stream into an MP4 container, while just copying the video stream.  I got an MP4 file.  It still didn't work.
 
-### Duration: 0 seconds, Framerate: 3834 frames per second
+### Duration: 0 seconds, Frame rate: 3834 frames per second
 
-I figured out the basic problem with the raw H.264 stream was that it contained no information about the length of the video or the frames per second to play it at.  That's why I needed to specify a parameter to let Libav know what the framerate was, so it could put it in the MP4 file and the players would be happy.  Only it wasn't working.  The MP4 files still reported rediculous things like 0 second duration and 3834 fps.  After pulling out a sufficient amount of hair and doing some Googling, I found others who had this problem.  It seems the Libav tool was just ignoring the bitrate parameter.  The suggested solution was to get the latest official FFmpeg and try that.
+I figured out the basic problem with the raw H.264 stream was that it contained no information about the length of the video or the frames per second to play it at.  That's why I needed to specify a parameter to let Libav know what the frame rate was, so it could put it in the MP4 file and the players would be happy.  Only it wasn't working.  The MP4 files still reported rediculous things like 0 second duration and 3834 fps.  After pulling out a sufficient amount of hair and doing some Googling, I found others who had this problem.  It seems the Libav tool was just ignoring the bit rate parameter.  The suggested solution was to get the latest official FFmpeg and try that.
 
 ### FFmpeg
 
-I got the FFmpeg source and compiled it.  And compiled it.  And compiled it some more.  It took hours.  But when it was finally done, the wait had been worth it: it generated MP4 files with sane lengths and bitrates!  Only, when serving them from my Raspberry Pi with my Python script, they still didn't play in browsers!
+I got the FFmpeg source and compiled it.  And compiled it.  And compiled it some more.  It took hours.  But when it was finally done, the wait had been worth it: it generated MP4 files with sane lengths and bit rates!  Only, when serving them from my Raspberry Pi with my Python script, they still didn't play in browsers!
 
 ### Nginx
 
@@ -54,7 +54,7 @@ I had developed my simple little web viewer with [Flask].  I had figured out how
 
 ### Daemons and init scripts
 
-Ah, this is so much fun every time I try to do it (NOT!).  I tried to use Python's [python-daemon] module.  It wouldn't work with the recording script.  It didn't report anything was wrong.  It would just not do anything, no idea why.  I tried the [daemon] program.  Same thing!  It didn't give any messages of any knd, it just didn't work.  Eventually I found this [article about getting a Python script to run in the background], which uses the [start-stop-daemon] program.  Using that as a template finally got it working!
+Ah, this is so much fun every time I try to do it (NOT!).  I tried to use Python's [python-daemon] module.  It wouldn't work with the recording script.  It didn't report anything was wrong.  It would just not do anything, no idea why.  I tried the [daemon] program.  Same thing!  It didn't give any messages of any kind, it just didn't work.  Eventually I found this [article about getting a Python script to run in the background], which uses the [start-stop-daemon] program.  Using that as a template finally got it working!
 
 ## Dependencies
 
@@ -86,9 +86,9 @@ This will install everything, configure the init system to start the program on 
 
 ## Configuration
 
-The package configuration can be customized using the configuration file `/etc/pisurv.conf`.  If this file does not exist on installation, the install script will create one containing default values.  The configuration file contains settings such as the motion threshold, recording path, recording length and framerate, and options for the web viewer.  The default configuration file contains comments that can help you to set this up.
+The package configuration can be customized using the configuration file `/etc/pisurv.conf`.  If this file does not exist on installation, the install script will create one containing default values.  The configuration file contains settings such as the motion threshold, recording path, recording length and frame rate, and options for the web viewer.  The default configuration file contains comments that can help you to set this up.
 
-By default, the camera is monitored for motion continuously.  To use the scheduling feature, you can add a `[Schedule]` section to the configuration file, and add keys with values that specify time spans to this section.  The key names do not matteri and can be chosen to clarify the users intent.  The time spans are two time specifications that the `python-dateutil` package can parse and separated by a dash: `-`.
+By default, the camera is monitored for motion continuously.  To use the scheduling feature, you can add a `[Schedule]` section to the configuration file, and add keys with values that specify time spans to this section.  The key names do not matter and can be chosen to clarify the user's intent.  The time spans are two time specifications that the `python-dateutil` package can parse and separated by a dash: `-`.
 
 For example, a configuration that records every day from noon till 1 PM, and on Tuesdays from 7:15 PM till 10 PM could look like this:
 
