@@ -98,7 +98,7 @@ NOON = 12pm - 1pm
 MEETING_TUE = tuesday 7:15 pm - tuesday 10:00 pm
 ```
 
-When specifying time spans that are not just times but also specify a day/date, you have to make sure to specify a date portion for both start and stop times, since they are parsed separately.  A date specification on only one side of the time span will produce unpredictable results.
+You have to make sure to use the same precision in the time specification for both start and stop times, since they are parsed separately.  For instance, daily recording spans should not contain any date or day of week references at all.  Once-per-week specifications need to contain a week day for both start and stop times.  The system is not smart enough to infer what you mean when you only specify a weekday for the start time, for instance.  When specifying an absolute date, a full date needs to be present for both the start and stop times.  Failing to keep start and stop times consistent this way will produce unpredictable results.
 
 ## Running the program
 
